@@ -6,7 +6,26 @@ using Newtonsoft.Json;
 
 public enum Action
 {
-    Chat
+    /// <summary>
+    /// Used when a client is sending the server their username
+    /// </summary>
+    Login,
+    /// <summary>
+    /// Used after a Login, sends the client back their unique ID
+    /// </summary>
+    SendUserData,
+    /// <summary>
+    /// Used when a client disconnects
+    /// </summary>
+    UserDisonnected,
+    /// <summary>
+    /// Used when a client connects after login
+    /// </summary>
+    AddUser,
+    /// <summary>
+    /// Used to send a Chat message
+    /// </summary>
+    Chat,
 }
 
 public class Packet

@@ -10,6 +10,7 @@ public class TEST_CLIENT_UI : Control
     private LineEdit _usernameTextInput;
     private Button _sendButton;
     private Button _joinButton;
+    private RichTextLabel _connectedUsers;
 
     /// <summary>
     /// Emmited when the "send" button is pressed. (string: Message)
@@ -37,9 +38,11 @@ public class TEST_CLIENT_UI : Control
         _usernameTextInput = GetNode<LineEdit>("Panel/VBox/UsernameTextInput");
         _sendButton = GetNode<Button>("Panel/SendButton");
         _joinButton = GetNode<Button>("Panel/VBox/JoinButton");
+        _connectedUsers = GetNode<RichTextLabel>("Panel/ConnectedUsers");
 
         _sendButton.Connect("pressed", this, nameof(OnSendButtonPressed));
         _joinButton.Connect("pressed", this, nameof(OnJoinButtonPressed));
+
     }
 
     private void OnSendButtonPressed()
@@ -62,5 +65,15 @@ public class TEST_CLIENT_UI : Control
     public void AddMessage(string message)
     {
         _chatBox.Text += $"{message}\n";
+    }
+
+    public void AddConnectedUser(string username)
+    {
+        _connectedUsers.Text += $"{username}\n";
+    }
+
+    public void RemoveConnectedUser(string username)
+    {
+        _connectedUsers.Text = _connectedUsers.Text.Replace($"{username}\n", "");
     }
 }

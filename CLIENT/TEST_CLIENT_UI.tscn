@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scripts/TEST_CLIENT_UI.cs" type="Script" id=1]
 
@@ -6,6 +6,9 @@
 bg_color = Color( 0.2, 0.231373, 0.309804, 1 )
 
 [sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
 
 [node name="TEST_CLIENT_UI" type="Control"]
@@ -46,6 +49,13 @@ margin_left = -45.0
 margin_top = -42.0
 text = ">"
 
+[node name="ConnectedUsers" type="RichTextLabel" parent="Panel"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -492.0
+margin_right = 266.0
+custom_styles/normal = SubResource( 3 )
+
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 anchor_bottom = 1.0
 margin_right = 266.0
@@ -53,12 +63,14 @@ margin_right = 266.0
 [node name="AddressTextInput" type="LineEdit" parent="Panel/VBox"]
 margin_right = 266.0
 margin_bottom = 24.0
+text = "localhost"
 placeholder_text = "localhost"
 
 [node name="PortNumberInput" type="LineEdit" parent="Panel/VBox"]
 margin_top = 28.0
 margin_right = 266.0
 margin_bottom = 52.0
+text = "9999"
 placeholder_text = "9999"
 
 [node name="UsernameTextInput" type="LineEdit" parent="Panel/VBox"]
