@@ -14,8 +14,8 @@ namespace DedicatedServer
         {
             _server = new WebSocketServer();
 
-            _server.Connect("peer_connected", this, nameof(OnPeerConnected));
-            _server.Connect("peer_disconnected", this, nameof(OnPeerDisconnected));
+            _server.Connect("client_connected", this, nameof(OnClientConnected));
+            _server.Connect("client_disconnected", this, nameof(OnClientDisconnected));
             _server.Connect("data_received", this, nameof(OnDataReceived));
 
             _server.Listen(_port);
@@ -27,29 +27,40 @@ namespace DedicatedServer
             _server.Poll();
         }
 
-        private void OnPeerConnected(int id)
+        private void OnClientConnected(int id, string protocol)
         {
             GD.Print($"Peer {id} connected");
             _connectedPeerIDs.Add(id);
         }
 
-        private void OnPeerDisconnected(int id)
+        private void OnClientDisconnected(int id, bool wasCleanClose)
         {
-            GD.Print($"Peer {id} disconnected");
+            GD.Print($"Peer {id} disconnected, clean: {wasCleanClose}");
             _connectedPeerIDs.Remove(id);
         }
 
         private void OnDataReceived(int id)
         {
-            byte[] payload = _server.GetPeer(id).GetPacket();
-            string message = System.Text.Encoding.UTF8.GetString(payload);
-            GD.Print($"Received message from {id}: {message}");
+            string data = System.Text.Encoding.UTF8.GetString(_server.GetPeer(id).GetPacket());
+            // data = data.Replace("\\", string.Empty); // Remove escape characters (Godot's JSON parser doesn't like them)
+            GD.Print($"Data received from peer {id}: {data}");
+            
+            Packet packet = PacketFactory.FromJson(data);
 
-            foreach (int peerID in _connectedPeerIDs)
+            if (packet != null)
             {
-                if (peerID != id)
+                switch (packet.Action)
                 {
-                    _server.GetPeer(peerID).PutPacket(payload);
+                    case Action.Chat:
+                        GD.Print($"Chat message from peer {id}: {packet.Payloads[0]}");
+                        foreach (int peerID in _connectedPeerIDs)
+                        {
+                            _server.GetPeer(peerID).PutPacket(packet.ToBytes());
+                        }
+                        break;
+                    default:
+                        GD.Print($"Unknown action: {packet.Action}");
+                        break;
                 }
             }
         }

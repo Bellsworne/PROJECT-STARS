@@ -21,6 +21,9 @@ public class TEST_CLIENT_UI : Control
     /// </summary>
     public event Action<string, int, string> JoinServer;
 
+    /// <summary>
+    /// Gets the address from the address input field.
+    /// </summary>
     public string Address => _addressTextInput.Text;
     public int Port => int.Parse(_portTextInput.Text);
     public string Username => _usernameTextInput.Text;

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public class NetworkHelper : Node
 {
@@ -7,6 +8,8 @@ public class NetworkHelper : Node
 
     private TEST_CLIENT_UI _clientUI;
     private WebSocketClient _client;
+
+    private (int, string) _userData;
 
     public override void _Ready()
     {
@@ -39,13 +42,20 @@ public class NetworkHelper : Node
 
     private void OnSendMessage(string message)
     {
-        byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
+        
+        var packet = new Packet("Chat", new List<object> { message });
+        var data = Packet.CreatePacket(packet);
+
+        GD.Print($"Sending message to server: {packet}");
+
         _client.GetPeer(1).PutPacket(data);
     }
 
     private void OnConnectionEstablished(string protocol)
     {
         GD.Print("Connected to server");
+        
+        //_client.GetPeer(1).PutPacket();
     }
 
     private void OnConnectionClosed(bool wasClean)
@@ -57,7 +67,24 @@ public class NetworkHelper : Node
     {
         byte[] payload = _client.GetPeer(1).GetPacket();
         string message = System.Text.Encoding.UTF8.GetString(payload);
+        
+        var (action, payloads) = Packet.JsonToActionPayloads(message);
+
         GD.Print($"Received message from server: {message}");
+
+        switch (action)
+        {
+            case "Chat":
+                OnChatReceived((string)payloads[0]);
+                break;
+            default:
+                GD.Print($"Unknown action: {action}");
+                break;
+        }
+    }
+
+    private void OnChatReceived(string message)
+    {
         _clientUI.AddMessage(message);
     }
 }
