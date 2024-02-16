@@ -43,7 +43,7 @@ public class NetworkHelper : Node
     private void OnSendMessage(string message)
     {
         
-        var packet = new Packet("Chat", new List<object> { message });
+        var packet = new Packet("Chat", new List<object> { _clientUI.Username, message });
         var data = Packet.CreatePacket(packet);
 
         GD.Print($"Sending message to server: {packet}");
@@ -75,7 +75,7 @@ public class NetworkHelper : Node
         switch (action)
         {
             case "Chat":
-                OnChatReceived((string)payloads[0]);
+                OnChatReceived((string)payloads[0], (string)payloads[1]);
                 break;
             default:
                 GD.Print($"Unknown action: {action}");
@@ -83,8 +83,8 @@ public class NetworkHelper : Node
         }
     }
 
-    private void OnChatReceived(string message)
+    private void OnChatReceived(string username, string message)
     {
-        _clientUI.AddMessage(message);
+        _clientUI.AddMessage($"{username}: {message}");
     }
 }

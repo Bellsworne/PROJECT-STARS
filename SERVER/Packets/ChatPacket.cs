@@ -1,6 +1,6 @@
 public class ChatPacket : Packet
 {
-    public ChatPacket(string message) : base(Action.Chat, message)
+    public ChatPacket(string username, string message) : base(Action.Chat, username, message)
     {
     }
 }

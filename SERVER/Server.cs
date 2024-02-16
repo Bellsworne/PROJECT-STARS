@@ -42,7 +42,7 @@ namespace DedicatedServer
         private void OnDataReceived(int id)
         {
             string data = System.Text.Encoding.UTF8.GetString(_server.GetPeer(id).GetPacket());
-            // data = data.Replace("\\", string.Empty); // Remove escape characters (Godot's JSON parser doesn't like them)
+
             GD.Print($"Data received from peer {id}: {data}");
             
             Packet packet = PacketFactory.FromJson(data);
@@ -52,7 +52,7 @@ namespace DedicatedServer
                 switch (packet.Action)
                 {
                     case Action.Chat:
-                        GD.Print($"Chat message from peer {id}: {packet.Payloads[0]}");
+                        GD.Print($"Chat message from peer {id}: {packet.Payloads[0]}: {packet.Payloads[1]}");
                         foreach (int peerID in _connectedPeerIDs)
                         {
                             _server.GetPeer(peerID).PutPacket(packet.ToBytes());
