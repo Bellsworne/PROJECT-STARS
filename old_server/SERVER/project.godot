@@ -10,7 +10,7 @@ config_version=4
 
 [application]
 
-config/name="PROJECT-STARS_SERVER"
+config/name="PROJECT-STARS-SERVER"
 run/main_scene="res://Server.tscn"
 
 [gui]

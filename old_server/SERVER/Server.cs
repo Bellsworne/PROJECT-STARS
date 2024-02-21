@@ -15,11 +15,22 @@ namespace DedicatedServer
         {
             _server = new WebSocketServer();
 
+            // SSL
+            var cert = new X509Certificate();
+            cert.Load("cert.pem");
+            _server.SslCertificate = cert;
+
+            var key = new CryptoKey();
+            key.Load("privkey.pem");
+            _server.PrivateKey = key;
+
+            _server.Listen(_port);
+            // SSL
+
             _server.Connect("client_connected", this, nameof(OnClientConnected));
             _server.Connect("client_disconnected", this, nameof(OnClientDisconnected));
             _server.Connect("data_received", this, nameof(OnDataReceived));
-
-            _server.Listen(_port);
+            
             GD.Print($"Server listening on port {_port}");
         }
 

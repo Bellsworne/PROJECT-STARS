@@ -39,7 +39,7 @@ public class NetworkHelper : Node
         _client.Connect("connection_closed", this, nameof(OnConnectionClosed));
         _client.Connect("data_received", this, nameof(OnDataReceived));
 
-        _client.ConnectToUrl($"ws://{address}:{port}");
+        _client.ConnectToUrl($"wss://{address}:{port}");
 
         Username = _clientUI.Username;
     }
