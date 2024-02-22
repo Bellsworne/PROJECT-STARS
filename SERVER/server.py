@@ -34,7 +34,7 @@ class Server:
                         break
                 # Process the message
                 packet = Packet.from_bytes(message)
-                print(f"Received packet: {packet}")
+                ## print(f"Received packet: {packet}")
 
                 if packet.action == Action.LOGIN:
                     self.connected_users[websocket] = {"id": str(user_id), "username": packet.payloads[0]}

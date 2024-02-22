@@ -1,4 +1,5 @@
 using Godot;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +7,8 @@ public class NetworkHelper : Node
 {
     public static int ID;
     public string Username;
+
+    public static Node World;
 
     public event Action<int, Transform2D> PlayerTransformSyncRecieved;
 
@@ -23,6 +26,8 @@ public class NetworkHelper : Node
             _clientUI.SendMessage += OnSendMessage;
             _clientUI.JoinServer += OnJoinServer;
         }
+
+        World = GetTree().Root.GetNode("MAIN").GetNode("World");
     }
 
     public override void _Process(float delta)
@@ -83,7 +88,7 @@ public class NetworkHelper : Node
         
         var (action, payloads) = Packet.JsonToActionPayloads(message);
 
-        GD.Print($"Received message from server: {message}");
+        //GD.Print($"Received message from server: {message}");
 
         switch (action)
         {
@@ -98,6 +103,7 @@ public class NetworkHelper : Node
             case "UserDisconnected": // User is disconnecting
                 _clientUI.LogMessageToChat($"User disconnected: {_connectedUsers[int.Parse((string)payloads[0])]}");
                 _clientUI.RemoveConnectedUser(_connectedUsers[int.Parse((string)payloads[0])]);
+                RemovePlayer((string)payloads[0]);
                 _connectedUsers.Remove(int.Parse((string)payloads[0]));
                 break;
             case "AddUser": // Add a user
@@ -107,11 +113,10 @@ public class NetworkHelper : Node
                 SpawnPlayer(int.Parse((string)payloads[0]));
                 break;
             case "PlayerTransformSync": // Sync player transforms
-                GD.Print($"Player transform sync: {payloads[0]}");
-                // int id = int.Parse((string)payloads[0]);
-                // Transform2D transform = (Transform2D)payloads[1];
-                // PlayerTransformSyncRecieved?.Invoke(id, transform);
-                // todo: implement this
+                //GD.Print($"Recieved player transform sync packet: {payloads[0]}");
+                var id = int.Parse((string)payloads[0]);
+                Transform2D transform = JsonConvert.DeserializeObject<Transform2D>((string)payloads[1]);
+                PlayerTransformSyncRecieved?.Invoke(id, transform);
                 break;
             default:
                 _clientUI.LogErrorToChat($"Packet error: Unknown action '{action}'");
@@ -129,6 +134,11 @@ public class NetworkHelper : Node
         var player = _playerScene.Instance() as Player;
         player.ID = id;
         player.Name = id.ToString();
-        GetTree().Root.GetNode("MAIN").GetNode("World").AddChild(player);
+        World.AddChild(player);
+    }
+
+    private void RemovePlayer(string id)
+    {
+        World.GetNode(id).QueueFree();
     }
 }

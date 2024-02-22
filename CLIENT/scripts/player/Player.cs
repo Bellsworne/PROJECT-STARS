@@ -1,4 +1,5 @@
 using Godot;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -13,6 +14,7 @@ public class Player : RigidBody2D
     private Sprite _playerSprite;
     private bool _isMe = false;
     private NetworkHelper _networkHelper;
+    private Camera2D _camera;
 
     public int ID;
 
@@ -20,20 +22,24 @@ public class Player : RigidBody2D
 
     public override void _Ready()
     {
+        _networkHelper = GetTree().Root.GetNode("MAIN").GetNode<NetworkHelper>("NetworkHelper");
         _playerSprite = GetNode<Sprite>("PlayerSprite");
+        _camera = GetNode<Camera2D>("Camera2D");
 
         if (ID == NetworkHelper.ID)
         {
             _isMe = true;
+            _camera.Current = true;
             
         } else
         {
+            _camera.Current = false;
             SetPhysicsProcess(false);
         }
 
         GetNode<Label>(_label).Text = ID.ToString();
+        
 
-        _networkHelper = GetTree().Root.GetNode("MAIN").GetNode<NetworkHelper>("NetworkHelper");
 
         _networkHelper.PlayerTransformSyncRecieved += OnPlayerTransformSyncRecieved;
         
@@ -44,7 +50,7 @@ public class Player : RigidBody2D
     {
         if (id != ID)
         {
-            GetTree().Root.GetNode("Main").GetNode("World").GetNode<Player>(id.ToString()).GlobalTransform = transform;
+            NetworkHelper.World.GetNode<Player>(id.ToString()).GlobalTransform = transform;
         }
     }
 
@@ -75,7 +81,7 @@ public class Player : RigidBody2D
     {
         if (LinearVelocity != Vector2.Zero) 
         {
-            var packet = new Packet("PlayerTransformSync", new List<object> { ID, GlobalTransform });
+            var packet = new Packet("PlayerTransformSync", new List<object> { ID.ToString(), JsonConvert.SerializeObject(GlobalTransform) });
             _networkHelper.SendPacketToServer(packet);
         }
     }
