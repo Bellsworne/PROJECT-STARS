@@ -8,6 +8,7 @@ class Action(Enum):
     USER_DISCONNECTED = "UserDisconnected"
     ADD_USER = "AddUser"
     CHAT = "Chat"
+    PLAYER_TRANSFORM_SYNC = "PlayerTransformSync"
 
 class Packet:
     def __init__(self, action, *payloads):

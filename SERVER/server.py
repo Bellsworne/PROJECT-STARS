@@ -50,7 +50,12 @@ class Server:
                 elif packet.action == Action.CHAT:
                     print(f"User {user_id}:{packet.payloads[0]} sent chat message: {packet.payloads[1]}")
                     for ws in self.connected_users.keys():
-                        await ws.send(packet.to_bytes())
+                        await ws.send(packet.to_bytes()) # Action, Username, Message
+
+                elif packet.action == Action.PLAYER_TRANSFORM_SYNC:
+                    for ws in self.connected_users.keys():
+                        if ws != websocket:
+                            await ws.send(packet.to_bytes()) # Action, ID, Transform
 
         except Exception as e:
             print(f"User {user_id} disconnected due to error: {e}")

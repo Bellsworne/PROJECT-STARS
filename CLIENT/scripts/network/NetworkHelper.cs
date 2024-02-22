@@ -7,6 +7,8 @@ public class NetworkHelper : Node
     public static int ID;
     public string Username;
 
+    public event Action<int, Transform2D> PlayerTransformSyncRecieved;
+
     [Export] private NodePath _clientUIPath;
     [Export] private PackedScene _playerScene;
     private TEST_CLIENT_UI _clientUI;
@@ -29,6 +31,12 @@ public class NetworkHelper : Node
         {
             _client.Poll();
         }
+    }
+
+    public void SendPacketToServer(Packet packet)
+    {
+        var data = Packet.CreatePacket(packet);
+        _client.GetPeer(1).PutPacket(data);
     }
 
     private void OnJoinServer(string address, int port, string username)
@@ -97,6 +105,13 @@ public class NetworkHelper : Node
                 _connectedUsers.Add(int.Parse((string)payloads[0]), (string)payloads[1]);
                 _clientUI.AddConnectedUser((string)payloads[1]);
                 SpawnPlayer(int.Parse((string)payloads[0]));
+                break;
+            case "PlayerTransformSync": // Sync player transforms
+                GD.Print($"Player transform sync: {payloads[0]}");
+                // int id = int.Parse((string)payloads[0]);
+                // Transform2D transform = (Transform2D)payloads[1];
+                // PlayerTransformSyncRecieved?.Invoke(id, transform);
+                // todo: implement this
                 break;
             default:
                 _clientUI.LogErrorToChat($"Packet error: Unknown action '{action}'");
