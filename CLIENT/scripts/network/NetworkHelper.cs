@@ -7,9 +7,7 @@ public class NetworkHelper : Node
 {
     public static int ID;
     public string Username;
-
     public static Node World;
-
     public event Action<int, Transform2D> PlayerTransformSyncRecieved;
 
     [Export] private NodePath _clientUIPath;
@@ -17,6 +15,8 @@ public class NetworkHelper : Node
     private TEST_CLIENT_UI _clientUI;
     private WebSocketClient _client;
     private Dictionary<int, string> _connectedUsers = new Dictionary<int, string>();
+
+    public Dictionary<int, string> ConnectedUsers => _connectedUsers;
 
     public override void _Ready()
     {
@@ -98,6 +98,7 @@ public class NetworkHelper : Node
             case "SendUserData": // Server is sending the UID for this client
                 ID = int.Parse((string)payloads[0]);
                 _clientUI.LogMessageToChat($"My ID is {ID}");
+                _connectedUsers.Add(ID, Username);
                 SpawnPlayer(ID);
                 break;
             case "UserDisconnected": // User is disconnecting
@@ -134,6 +135,7 @@ public class NetworkHelper : Node
         var player = _playerScene.Instance() as Player;
         player.ID = id;
         player.Name = id.ToString();
+        player.Username = _connectedUsers[id];
         World.AddChild(player);
     }
 

@@ -45,6 +45,17 @@ public class TEST_CLIENT_UI : Control
 
     }
 
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventKey keyEvent)
+        {
+            if (keyEvent.Pressed && keyEvent.Scancode == (int) KeyList.Enter && _messageTextInput.HasFocus() && _messageTextInput.Text.Length > 0)
+            {
+                OnSendButtonPressed();
+            }
+        }
+    }
+
     private void OnSendButtonPressed()
     {
         string message = _messageTextInput.Text;

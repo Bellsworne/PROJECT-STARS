@@ -17,6 +17,7 @@ public class Player : RigidBody2D
     private Camera2D _camera;
 
     public int ID;
+    public string Username;
 
 
 
@@ -37,7 +38,7 @@ public class Player : RigidBody2D
             SetPhysicsProcess(false);
         }
 
-        GetNode<Label>(_label).Text = ID.ToString();
+        GetNode<Label>(_label).Text = Username;
         
 
 

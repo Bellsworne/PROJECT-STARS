@@ -27,8 +27,9 @@ shape = SubResource( 1 )
 [node name="Camera2D" type="Camera2D" parent="."]
 
 [node name="Label" type="Label" parent="."]
-margin_left = -6.0
-margin_top = -6.0
-margin_right = 34.0
-margin_bottom = 8.0
+margin_left = -83.0
+margin_top = -38.0
+margin_right = 83.0
+margin_bottom = -24.0
 text = "id"
+align = 1
