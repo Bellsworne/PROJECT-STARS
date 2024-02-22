@@ -64,16 +64,26 @@ public class TEST_CLIENT_UI : Control
 
     public void AddMessage(string message)
     {
-        _chatBox.Text += $"{message}\n";
+        _chatBox.BbcodeText += $"{message}\n";
     }
 
     public void AddConnectedUser(string username)
     {
-        _connectedUsers.Text += $"{username}\n";
+        _connectedUsers.BbcodeText += $"{username}\n";
     }
 
     public void RemoveConnectedUser(string username)
     {
-        _connectedUsers.Text = _connectedUsers.Text.Replace($"{username}\n", "");
+        _connectedUsers.BbcodeText = _connectedUsers.Text.Replace($"{username}\n", "");
+    }
+
+    public void LogMessageToChat(string message)
+    {
+        _chatBox.BbcodeText += $"[color=green]{message}[/color]\n";
+    }
+
+    public void LogErrorToChat(string message)
+    {
+        _chatBox.BbcodeText += $"[color=red]Error: {message}[/color]\n";
     }
 }

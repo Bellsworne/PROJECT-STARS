@@ -39,7 +39,7 @@ public class NetworkHelper : Node
         _client.Connect("connection_closed", this, nameof(OnConnectionClosed));
         _client.Connect("data_received", this, nameof(OnDataReceived));
 
-        _client.ConnectToUrl($"wss://{address}:{port}");
+        _client.ConnectToUrl($"ws://{address}:{port}");
 
         Username = _clientUI.Username;
     }
@@ -57,7 +57,7 @@ public class NetworkHelper : Node
 
     private void OnConnectionEstablished(string protocol)
     {
-        GD.Print($"Connected to server, logging in with {Username}.");
+        _clientUI.LogMessageToChat($"Connected to server, logging in with {Username}.");
 
         Packet packet = new Packet("Login", new List<object> {Username});
         _client.GetPeer(1).PutPacket(Packet.CreatePacket(packet));
@@ -65,7 +65,7 @@ public class NetworkHelper : Node
 
     private void OnConnectionClosed(bool wasClean)
     {
-        GD.Print("Disconnected from server");
+        _clientUI.LogMessageToChat("Disconnected from server");
     }
 
     private void OnDataReceived()
@@ -84,19 +84,20 @@ public class NetworkHelper : Node
                 break;
             case "SendUserData": // Server is sending the UID for this client
                 ID = int.Parse((string)payloads[0]);
-                GD.Print($"My ID is {ID}");
+                _clientUI.LogMessageToChat($"My ID is {ID}");
                 break;
             case "UserDisconnected": // User is disconnecting
-                _connectedUsers.Remove(int.Parse((string)payloads[0]));
+                _clientUI.LogMessageToChat($"User disconnected: {_connectedUsers[int.Parse((string)payloads[0])]}");
                 _clientUI.RemoveConnectedUser(_connectedUsers[int.Parse((string)payloads[0])]);
-                GD.Print($"User disconnected: {payloads[0]}");
+                _connectedUsers.Remove(int.Parse((string)payloads[0]));
                 break;
             case "AddUser": // Add a user
+                _clientUI.LogMessageToChat($"User connected: {payloads[1]}");
                 _connectedUsers.Add(int.Parse((string)payloads[0]), (string)payloads[1]);
                 _clientUI.AddConnectedUser((string)payloads[1]);
                 break;
             default:
-                GD.Print($"Unknown action: {action}");
+                _clientUI.LogErrorToChat($"Packet error: Unknown action '{action}'");
                 break;
         }
     }
