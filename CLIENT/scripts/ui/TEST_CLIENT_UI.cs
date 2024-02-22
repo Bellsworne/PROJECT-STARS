@@ -60,6 +60,8 @@ public class TEST_CLIENT_UI : Control
         if (Address.Length == 0 || Port == 0 || Username.Length == 0) return;
         
         JoinServer.Invoke(Address, Port, Username);
+        
+        GetNode<VBoxContainer>("Panel/VBox").Hide();
     }
 
     public void AddMessage(string message)
