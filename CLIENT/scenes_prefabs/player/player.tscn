@@ -9,6 +9,7 @@ extents = Vector2( 296.5, 250 )
 [node name="Player" type="RigidBody2D"]
 gravity_scale = 0.0
 script = ExtResource( 2 )
+_label = NodePath("Label")
 
 [node name="PlayerSprite" type="Sprite" parent="."]
 scale = Vector2( 0.1, 0.1 )
@@ -20,3 +21,10 @@ scale = Vector2( 0.1, 0.1 )
 shape = SubResource( 1 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Label" type="Label" parent="."]
+margin_left = -6.0
+margin_top = -6.0
+margin_right = 34.0
+margin_bottom = 8.0
+text = "id"

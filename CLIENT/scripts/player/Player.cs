@@ -7,11 +7,30 @@ public class Player : RigidBody2D
     [Export] public float SpeedDamping = 5f;
     [Export] public float RotationDamping = 10f;
 
+    [Export] NodePath _label;
+
     private Sprite _playerSprite;
+    private bool _isMe = false;
+
+    public int ID;
+
+
 
     public override void _Ready()
     {
         _playerSprite = GetNode<Sprite>("PlayerSprite");
+
+        if (ID == NetworkHelper.ID)
+        {
+            _isMe = true;
+            
+        } else
+        {
+            SetPhysicsProcess(false);
+        }
+
+        GetNode<Label>(_label).Text = ID.ToString(); 
+
         base._Ready();
     }
 
@@ -19,7 +38,6 @@ public class Player : RigidBody2D
     {
         HandleMovement(delta);
         HandleRotation(delta);
-        base._Process(delta);
     }
 
     private void HandleMovement(float delta)

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 public class NetworkHelper : Node
 {
-    public int ID;
+    public static int ID;
     public string Username;
 
     [Export] private NodePath _clientUIPath;
+    [Export] private PackedScene _playerScene;
     private TEST_CLIENT_UI _clientUI;
     private WebSocketClient _client;
-
     private Dictionary<int, string> _connectedUsers = new Dictionary<int, string>();
 
     public override void _Ready()
@@ -85,6 +85,7 @@ public class NetworkHelper : Node
             case "SendUserData": // Server is sending the UID for this client
                 ID = int.Parse((string)payloads[0]);
                 _clientUI.LogMessageToChat($"My ID is {ID}");
+                SpawnPlayer(ID);
                 break;
             case "UserDisconnected": // User is disconnecting
                 _clientUI.LogMessageToChat($"User disconnected: {_connectedUsers[int.Parse((string)payloads[0])]}");
@@ -95,6 +96,7 @@ public class NetworkHelper : Node
                 _clientUI.LogMessageToChat($"User connected: {payloads[1]}");
                 _connectedUsers.Add(int.Parse((string)payloads[0]), (string)payloads[1]);
                 _clientUI.AddConnectedUser((string)payloads[1]);
+                SpawnPlayer(int.Parse((string)payloads[0]));
                 break;
             default:
                 _clientUI.LogErrorToChat($"Packet error: Unknown action '{action}'");
@@ -105,5 +107,13 @@ public class NetworkHelper : Node
     private void OnChatReceived(string username, string message)
     {
         _clientUI.AddMessage($"{username}: {message}");
+    }
+
+    private void SpawnPlayer(int id)
+    {
+        var player = _playerScene.Instance() as Player;
+        player.ID = id;
+        player.Name = id.ToString();
+        GetTree().Root.GetNode("MAIN").GetNode("World").AddChild(player);
     }
 }

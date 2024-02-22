@@ -37,13 +37,15 @@ class Server:
                 print(f"Received packet: {packet}")
 
                 if packet.action == Action.LOGIN:
-                    self.connected_users[websocket] = packet.payloads[0]
+                    self.connected_users[websocket] = {"id": str(user_id), "username": packet.payloads[0]}
                     print(f"User {user_id} logged in with username {packet.payloads[0]}")
                     await websocket.send(Packet(Action.SEND_USER_DATA, str(user_id)).to_bytes())
                     for ws in self.connected_users.keys():
                         if ws != websocket:
-                            await ws.send(Packet(Action.ADD_USER, str(user_id), self.connected_users[websocket]).to_bytes())
-                            await websocket.send(Packet(Action.ADD_USER, str(user_id), self.connected_users[ws]).to_bytes())
+                            await ws.send(Packet(Action.ADD_USER, str(user_id), packet.payloads[0]).to_bytes())
+                            print(f"User {user_id} sent user data to user {self.connected_users[ws]['id']}")
+                            await websocket.send(Packet(Action.ADD_USER, self.connected_users[ws]["id"], self.connected_users[ws]["username"]).to_bytes())
+                            print(f"User {self.connected_users[websocket]['id']} sent user data to user {self.connected_users[ws]["id"]}")
 
                 elif packet.action == Action.CHAT:
                     print(f"User {user_id}:{packet.payloads[0]} sent chat message: {packet.payloads[1]}")

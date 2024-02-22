@@ -9,15 +9,11 @@
 
 [node name="NetworkHelper" parent="." instance=ExtResource( 2 )]
 _clientUIPath = NodePath("../CanvasLayer/TEST_CLIENT_UI")
+_playerScene = ExtResource( 4 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="TEST_CLIENT_UI" parent="CanvasLayer" instance=ExtResource( 1 )]
 
-[node name="Node2D" parent="." instance=ExtResource( 3 )]
-
-[node name="Player" parent="." instance=ExtResource( 4 )]
-position = Vector2( 336, 281 )
-Speed = 500.0
-SpeedDamping = 1.0
-RotationDamping = 5.0
+[node name="World" parent="." instance=ExtResource( 3 )]
+position = Vector2( 509, 387 )
