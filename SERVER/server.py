@@ -44,8 +44,8 @@ class Server:
                         if ws != websocket:
                             await ws.send(Packet(Action.ADD_USER, str(user_id), packet.payloads[0]).to_bytes())
                             print(f"User {user_id} sent user data to user {self.connected_users[ws]['id']}")
-                            await websocket.send(Packet(Action.ADD_USER, self.connected_users[ws]["id"], self.connected_users[ws]["username"]).to_bytes())
-                            print(f"User {self.connected_users[websocket]['id']} sent user data to user {self.connected_users[ws]["id"]}")
+                            await websocket.send(Packet(Action.ADD_USER, self.connected_users[ws]['id'], self.connected_users[ws]['username']).to_bytes())
+                            print(f"User {self.connected_users[websocket]['id']} sent user data to user {self.connected_users[ws]['id']}")
 
                 elif packet.action == Action.CHAT:
                     print(f"User {user_id}:{packet.payloads[0]} sent chat message: {packet.payloads[1]}")
@@ -61,9 +61,16 @@ class Server:
             print(f"User {user_id} disconnected due to error: {e}")
         finally:
             if websocket in self.connected_users:
+                user_id = self.connected_users[websocket]['id']
                 del self.connected_users[websocket]
-                for ws in self.connected_users.keys():
-                    await ws.send(Packet(Action.USER_DISCONNECTED, str(user_id)).to_bytes())
+                for ws in list(self.connected_users.keys()):  # Create a copy of the keys
+                    if not ws.closed:  # Check if the WebSocket is open
+                        try:
+                            await ws.send(Packet(Action.USER_DISCONNECTED, str(user_id)).to_bytes())
+                        except websockets.exceptions.ConnectionClosedError:
+                            del self.connected_users[ws]  # Remove the closed WebSocket
+                        except Exception as e:
+                            print(f"Failed to send USER_DISCONNECTED message to user {self.connected_users[ws]['id']}: {e}")
 
     def start(self):
         start_server = websockets.serve(self.handler, self.host, self.port, ssl=self.ssl_context)

@@ -41,7 +41,6 @@ public class Player : RigidBody2D
         GetNode<Label>(_label).Text = Username;
         
 
-
         _networkHelper.PlayerTransformSyncRecieved += OnPlayerTransformSyncRecieved;
         
         base._Ready();

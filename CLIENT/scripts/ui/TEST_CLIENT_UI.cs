@@ -92,11 +92,11 @@ public class TEST_CLIENT_UI : Control
 
     public void LogMessageToChat(string message)
     {
-        _chatBox.BbcodeText += $"[color=green]{message}[/color]\n";
+        _chatBox.BbcodeText += $"[color=green][LOG]{message}[/color]\n";
     }
 
     public void LogErrorToChat(string message)
     {
-        _chatBox.BbcodeText += $"[color=red]Error: {message}[/color]\n";
+        _chatBox.BbcodeText += $"[color=red][ERROR]{message}[/color]\n";
     }
 }
