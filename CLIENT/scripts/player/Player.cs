@@ -16,7 +16,7 @@ public class Player : RigidBody2D
     private NetworkHelper _networkHelper;
     private Camera2D _camera;
 
-    public int ID;
+    public string ID;
     public string Username;
 
 
@@ -46,7 +46,7 @@ public class Player : RigidBody2D
         base._Ready();
     }
 
-    private void OnPlayerTransformSyncRecieved(int id, Transform2D transform)
+    private void OnPlayerTransformSyncRecieved(string id, Transform2D transform)
     {
         if (id != ID)
         {
@@ -81,7 +81,7 @@ public class Player : RigidBody2D
     {
         if (LinearVelocity != Vector2.Zero) 
         {
-            var packet = new Packet("PlayerTransformSync", new List<object> { ID.ToString(), JsonConvert.SerializeObject(GlobalTransform) });
+            var packet = new Packet("PLAYER_TRANSFORM_SYNC", new List<object> { ID.ToString(), JsonConvert.SerializeObject(GlobalTransform) });
             _networkHelper.SendPacketToServer(packet);
         }
     }

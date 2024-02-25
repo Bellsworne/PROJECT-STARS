@@ -5,18 +5,18 @@ using System.Collections.Generic;
 
 public class NetworkHelper : Node
 {
-    public static int ID;
+    public static string ID;
     public string Username;
     public static Node World;
-    public event Action<int, Transform2D> PlayerTransformSyncRecieved;
+    public event Action<string, Transform2D> PlayerTransformSyncRecieved;
 
     [Export] private NodePath _clientUIPath;
     [Export] private PackedScene _playerScene;
     private TEST_CLIENT_UI _clientUI;
     private WebSocketClient _client;
-    private Dictionary<int, string> _connectedUsers = new Dictionary<int, string>();
+    private Dictionary<string, string> _connectedUsers = new Dictionary<string, string>();
 
-    public Dictionary<int, string> ConnectedUsers => _connectedUsers;
+    public Dictionary<string, string> ConnectedUsers => _connectedUsers;
 
     public override void _Ready()
     {
@@ -45,29 +45,29 @@ public class NetworkHelper : Node
     }
 
     private void OnJoinServer(string address, int port, string username)
-{
-    try
     {
-        _client = new WebSocketClient();
+        try
+        {
+            _client = new WebSocketClient();
 
-        _client.Connect("connection_established", this, nameof(OnConnectionEstablished));
-        _client.Connect("connection_closed", this, nameof(OnConnectionClosed));
-        _client.Connect("data_received", this, nameof(OnDataReceived));
+            _client.Connect("connection_established", this, nameof(OnConnectionEstablished));
+            _client.Connect("connection_closed", this, nameof(OnConnectionClosed));
+            _client.Connect("data_received", this, nameof(OnDataReceived));
 
-        _client.ConnectToUrl($"wss://{address}:{port}");
+            _client.ConnectToUrl($"ws://{address}:{port}");
 
-        Username = _clientUI.Username;
+            Username = _clientUI.Username;
+        }
+        catch (Exception e)
+        {
+            _clientUI.LogErrorToChat($"Error while joining server: {e.Message}");
+        }
     }
-    catch (Exception e)
-    {
-        _clientUI.LogErrorToChat($"Error while joining server: {e.Message}");
-    }
-}
 
     private void OnSendMessage(string message)
     {
         
-        var packet = new Packet("Chat", new List<object> { Username, message });
+        var packet = new Packet("CHAT", new List<object> { Username, message });
         var data = Packet.CreatePacket(packet);
 
         GD.Print($"Sending message to server: {packet}");
@@ -79,7 +79,7 @@ public class NetworkHelper : Node
     {
         _clientUI.LogMessageToChat($"Connected to server, logging in with {Username}.");
 
-        Packet packet = new Packet("Login", new List<object> {Username});
+        Packet packet = new Packet("LOGIN", new List<object> {Username});
         _client.GetPeer(1).PutPacket(Packet.CreatePacket(packet));
     }
 
@@ -97,34 +97,34 @@ public class NetworkHelper : Node
             
             var (action, payloads) = Packet.JsonToActionPayloads(message);
 
-            //GD.Print($"Received message from server: {message}");
+            GD.Print($"Received message from server: {message}");
 
             switch (action)
             {
-                case "Chat": // Recieving a Chat message
+                case "CHAT": // Recieving a Chat message
                     OnChatReceived((string)payloads[0], (string)payloads[1]);
                     break;
-                case "SendUserData": // Server is sending the UID for this client
-                    ID = int.Parse((string)payloads[0]);
+                case "SEND_USER_DATA": // Server is sending the UID for this client
+                    ID = (string)payloads[0];
                     _clientUI.LogMessageToChat($"My ID is {ID}");
                     _connectedUsers.Add(ID, Username);
                     SpawnPlayer(ID);
                     break;
-                case "UserDisconnected": // User is disconnecting
-                    _clientUI.LogMessageToChat($"User disconnected: {_connectedUsers[int.Parse((string)payloads[0])]}");
-                    _clientUI.RemoveConnectedUser(_connectedUsers[int.Parse((string)payloads[0])]);
+                case "USER_DISCONNECTED": // User is disconnecting
+                    _clientUI.LogMessageToChat($"User disconnected: {_connectedUsers[(string)payloads[0]]}");
+                    _clientUI.RemoveConnectedUser(_connectedUsers[(string)payloads[0]]);
                     RemovePlayer((string)payloads[0]);
-                    _connectedUsers.Remove(int.Parse((string)payloads[0]));
+                    _connectedUsers.Remove((string)payloads[0]);
                     break;
-                case "AddUser": // Add a user
+                case "ADD_USER": // Add a user
                     _clientUI.LogMessageToChat($"User connected: {payloads[1]}");
-                    _connectedUsers.Add(int.Parse((string)payloads[0]), (string)payloads[1]);
+                    _connectedUsers.Add((string)payloads[0], (string)payloads[1]);
                     _clientUI.AddConnectedUser((string)payloads[1]);
-                    SpawnPlayer(int.Parse((string)payloads[0]));
+                    SpawnPlayer((string)payloads[0]);
                     break;
-                case "PlayerTransformSync": // Sync player transforms
+                case "PLAYER_TRANSFORM_SYNC": // Sync player transforms
                     //GD.Print($"Recieved player transform sync packet: {payloads[0]}");
-                    var id = int.Parse((string)payloads[0]);
+                    string id = (string)payloads[0];
                     Transform2D transform = JsonConvert.DeserializeObject<Transform2D>((string)payloads[1]);
                     PlayerTransformSyncRecieved?.Invoke(id, transform);
                     break;
@@ -144,7 +144,7 @@ public class NetworkHelper : Node
         _clientUI.AddMessage($"{username}: {message}");
     }
 
-    private void SpawnPlayer(int id)
+    private void SpawnPlayer(string id)
 {
     try
     {
