@@ -54,7 +54,7 @@ public class NetworkHelper : Node
         _client.Connect("connection_closed", this, nameof(OnConnectionClosed));
         _client.Connect("data_received", this, nameof(OnDataReceived));
 
-        _client.ConnectToUrl($"wss://{address}:{port}");
+        _client.ConnectToUrl($"ws://{address}:{port}");
 
         Username = _clientUI.Username;
     }
@@ -97,7 +97,7 @@ public class NetworkHelper : Node
             
             var (action, payloads) = Packet.JsonToActionPayloads(message);
 
-            //GD.Print($"Received message from server: {message}");
+            // _clientUI.LogMessageToChat($"Received message from server: {message}");
 
             switch (action)
             {
@@ -123,7 +123,7 @@ public class NetworkHelper : Node
                     SpawnPlayer(int.Parse((string)payloads[0]));
                     break;
                 case "PlayerTransformSync": // Sync player transforms
-                    //GD.Print($"Recieved player transform sync packet: {payloads[0]}");
+                    // GD.Print($"Recieved player transform sync packet: {payloads[0]}");
                     var id = int.Parse((string)payloads[0]);
                     Transform2D transform = JsonConvert.DeserializeObject<Transform2D>((string)payloads[1]);
                     PlayerTransformSyncRecieved?.Invoke(id, transform);
